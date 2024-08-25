@@ -128,39 +128,16 @@
                 margin: 5px;
             }
         </style>
-            <script>
-                function setAllergies() {
-                    const allergiesInput = document.getElementById('allergies').value;
-                    const allergies = allergiesInput.split(',').map(num => num.trim());
-                    const buttons = document.querySelectorAll('button[data-allergy]');
-        
-                    // 모든 버튼 색상 초기화
-                    buttons.forEach(button => {
-                        button.classList.remove('black');
-                    });
-        
-                    // 입력된 알러지에 해당하는 버튼 색상 변경
-                    buttons.forEach(button => {
-                        const buttonAllergies = button.dataset.allergy.split(',').map(num => num.trim());
-                        if (buttonAllergies.some(allergy => allergies.includes(allergy))) {
-                            button.classList.add('black');
-                        }
-                    });
-                }
-            </script>
+
 </head>
 <body>
-    <h2>알레르기 정보   </h2>
-    <h5>1. 난류(계란), 2. 우유, 3. 메밀, 4. 땅콩, 5. 대두(콩), 6. 밀, 7. 고등어, 8. 게, 9. 새우, 10. 돼지고기, 11. 복숭아, 12. 토마토, 13. 아황산류, 14. 호두, 15. 닭고기, 16. 쇠고기, 17. 오징어, 18. 조개류(굴,전복,홍합 포함), 19. 잣</h5>
-    <input type="text" id="allergies" placeholder="숫자를 쉼표로 구분하여 입력하세요">
-    <button onclick="setAllergies()">설정하기</button>
-    
-    
+    <button id="resetCookies">쿠키 초기화</button>
 
-    <h2>식사 정보 입력</h2>
-    <input type="text" id="mealInput" placeholder="예: 조식, 중식">
-    <button id="submitMeals">확인</button>
-
+        <h2>알레르기 정보와 식사 정보 입력 </h2>
+        <h5>1. 난류(계란), 2. 우유, 3. 메밀, 4. 땅콩, 5. 대두(콩), 6. 밀, 7. 고등어, 8. 게, 9. 새우, 10. 돼지고기, 11. 복숭아, 12. 토마토, 13. 아황산류, 14. 호두, 15. 닭고기, 16. 쇠고기, 17. 오징어, 18. 조개류(굴,전복,홍합 포함), 19. 잣</h5>
+        <input type="text" id="allergies" placeholder="예) 2, 중식, 석식">
+        <button id="submitMeals">설정하기</button>
+        
     <table>
         <caption>2024년 8월 달력</caption>
         <thead>
@@ -318,21 +295,6 @@
     </div>
     
     <script>
-        document.getElementById("submitMeals").onclick = function() {
-            const mealInput = document.getElementById("mealInput").value.trim();
-            const meals = mealInput.split(',').map(meal => meal.trim());
-            const buttons = document.querySelectorAll(".meal-btn");
-
-            buttons.forEach(button => {
-                if (!meals.includes(button.dataset.meal)) {
-                    button.style.display = "none"; // 숨기기
-                } else {
-                    button.style.display = "inline-block"; // 보이도록 설정
-                }
-            });
-        }
-    </script>
-    <script>
         function showPopup(meal, day) {
             const mealDescription = document.getElementById('meal-description');
             let menu = '';
@@ -468,6 +430,74 @@
 
         function hidePopup() {
             document.getElementById('popup').style.display = 'none';
+        }
+    </script>
+    <script>
+        // 쿠키에 값 저장
+        function setCookie(name, value, days) {
+            const expires = new Date(Date.now() + days * 864e5).toUTCString();
+            document.cookie = name + '=' + encodeURIComponent(value) + '; expires=' + expires + '; path=/';
+        }
+
+        // 쿠키에서 값 가져오기
+        function getCookie(name) {
+            return document.cookie.split('; ').reduce((r, c) => {
+                const [key, value] = c.split('=');
+                return key === name ? decodeURIComponent(value) : r;
+            }, '');
+        }
+
+        // 쿠키 초기화
+        function deleteCookie(name) {
+            setCookie(name, '', -1); // 만료일을 과거로 설정하여 쿠키 삭제
+        }
+
+        // 제출 버튼 클릭 이벤트
+        document.getElementById("submitMeals").onclick = function() {
+            const allergiesInput = document.getElementById('allergies').value;
+            setCookie('allergies', allergiesInput, 7); // 7일 동안 쿠키에 저장
+
+            const allergies = allergiesInput.split(',').map(num => num.trim());
+            const buttons = document.querySelectorAll('button[data-allergy]');
+            
+            // 모든 버튼 색상 초기화
+            buttons.forEach(button => {
+                button.classList.remove('black');
+            });
+            
+            // 입력된 알레르지에 해당하는 버튼 색상 변경
+            buttons.forEach(button => {
+                const buttonAllergies = button.dataset.allergy.split(',').map(num => num.trim());
+                if (buttonAllergies.some(allergy => allergies.includes(allergy))) {
+                    button.classList.add('black');
+                }
+            });
+
+            // 식사 정보 처리
+            const meals = allergiesInput.split(',').map(meal => meal.trim());
+            buttons.forEach(button => {
+                button.style.display = meals.includes(button.dataset.meal) ? "inline-block" : "none"; // 보여주거나 숨기기
+            });
+        }
+
+        // 페이지 로드 시 쿠키에서 값 불러오기
+        window.onload = function() {
+            const storedAllergies = getCookie('allergies');
+            if (storedAllergies) {
+                document.getElementById('allergies').value = storedAllergies; // 입력란에 값 설정
+                document.getElementById("submitMeals").onclick(); // 버튼 클릭 함수 호출
+            }
+        }
+
+        // 쿠키 초기화 버튼의 이벤트 리스너
+        document.getElementById("resetCookies").onclick = function() {
+            deleteCookie('allergies'); // 쿠키 삭제
+            document.getElementById('allergies').value = ''; // 입력란 초기화
+            const buttons = document.querySelectorAll('button[data-allergy]');
+            buttons.forEach(button => {
+                button.style.display = "inline-block"; // 모든 버튼 보이게 설정
+                button.classList.remove('black'); // 버튼 색상 초기화
+            });
         }
     </script>
 </body>
