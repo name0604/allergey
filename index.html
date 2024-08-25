@@ -517,30 +517,36 @@ function mealReminder() {
     const allergiesInput = getCookie('allergies');
     const allergies = allergiesInput ? allergiesInput.split(',').map(num => num.trim()) : [];
     
+    const now = new Date();
+    const currentDate = now.getDate(); // 현재 날짜
+
     // 각 날짜에 대한 식사 정보를 확인하여 알림
     const mealDays = [
-    { day: '12일', meals: ['조식', '중식', '석식'], allergies: ['2, 5, 6, 9, 13, 15, 16'] },
-    { day: '13일', meals: ['조식', '중식', '석식'], allergies: ['1, 2, 5, 6, 10, 12, 13, 15, 16'] },
-    { day: '14일', meals: ['조식', '중식', '석식'], allergies: ['1, 2, 5, 6, 9, 10, 13, 15, 16'] },
-    { day: '16일', meals: ['조식', '중식'], allergies: ['1, 2, 5, 6, 9, 10, 15, 16'] },
-    { day: '19일', meals: ['조식', '중식', '석식'], allergies: ['1, 2, 5, 6, 9, 12, 15, 16'] },
-    { day: '20일', meals: ['조식', '중식', '석식'], allergies: ['1, 2, 5, 6, 10, 13, 17, 18'] },
-    { day: '21일', meals: ['조식', '중식', '석식'], allergies: ['1, 2, 5, 6, 9, 10, 12, 15, 16'] },
-    { day: '22일', meals: ['조식', '중식', '석식'], allergies: ['1, 2, 5, 6, 9, 10, 13, 16, 18'] },
-    { day: '23일', meals: ['조식', '중식'], allergies: ['5, 6, 9, 10, 12, 13, 17, 18'] },
-    { day: '26일', meals: ['조식', '중식', '석식'], allergies: ['1, 2, 5, 6, 9, 10, 13'] },
-    { day: '27일', meals: ['조식', '중식', '석식'], allergies: ['1, 2, 5, 6, 9, 10, 12, 13, 15, 16'] },
-    { day: '28일', meals: ['조식', '중식', '석식'], allergies: ['1, 2, 5, 6, 9, 10, 12'] },
-    { day: '29일', meals: ['조식', '중식', '석식'], allergies: ['1, 2, 5, 6, 9, 12, 13, 16'] },
-    { day: '30일', meals: ['조식', '중식'], allergies: ['1, 2, 5, 6, 9, 10, 13, 15, 16, 18'] }
-];
+        { day: '12일', meals: ['조식', '중식', '석식'], allergies: ['2, 5, 6, 9, 13, 15, 16'] },
+        { day: '13일', meals: ['조식', '중식', '석식'], allergies: ['1, 2, 5, 6, 10, 12, 13, 15, 16'] },
+        { day: '14일', meals: ['조식', '중식', '석식'], allergies: ['1, 2, 5, 6, 9, 10, 13, 15, 16'] },
+        { day: '16일', meals: ['조식', '중식'], allergies: ['1, 2, 5, 6, 9, 10, 15, 16'] },
+        { day: '19일', meals: ['조식', '중식', '석식'], allergies: ['1, 2, 5, 6, 9, 12, 15, 16'] },
+        { day: '20일', meals: ['조식', '중식', '석식'], allergies: ['1, 2, 5, 6, 10, 13, 17, 18'] },
+        { day: '21일', meals: ['조식', '중식', '석식'], allergies: ['1, 2, 5, 6, 9, 10, 12, 15, 16'] },
+        { day: '22일', meals: ['조식', '중식', '석식'], allergies: ['1, 2, 5, 6, 9, 10, 13, 16, 18'] },
+        { day: '23일', meals: ['조식', '중식'], allergies: ['5, 6, 9, 10, 12, 13, 17, 18'] },
+        { day: '26일', meals: ['조식', '중식', '석식'], allergies: ['1, 2, 5, 6, 9, 10, 13'] },
+        { day: '27일', meals: ['조식', '중식', '석식'], allergies: ['1, 2, 5, 6, 9, 10, 12, 13, 15, 16'] },
+        { day: '28일', meals: ['조식', '중식', '석식'], allergies: ['1, 2, 5, 6, 9, 10, 12'] },
+        { day: '29일', meals: ['조식', '중식', '석식'], allergies: ['1, 2, 5, 6, 9, 12, 13, 16'] },
+        { day: '30일', meals: ['조식', '중식'], allergies: ['1, 2, 5, 6, 9, 10, 13, 15, 16, 18'] }
+    ];
 
     mealDays.forEach(({ day, meals, allergies }) => {
-        meals.forEach(meal => {
-            if (allergies.some(allergy => allergies.includes(allergy))) {
-                sendNotification(meal, day, allergies);
-            }
-        });
+        const mealDayNumber = parseInt(day); // 날짜를 숫자로 변환
+        if (mealDayNumber === currentDate) { // 현재 날짜와 비교
+            meals.forEach(meal => {
+                if (allergies.some(allergy => allergies.includes(allergy))) {
+                    sendNotification(meal, day, allergies);
+                }
+            });
+        }
     });
 }
 
